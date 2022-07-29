@@ -28,42 +28,46 @@
     <!-- Source: https://stackoverflow.com/a/53218452/15365513 -->
 
     <script>
-      (async () => {
-        // Fetch file list from Github API
-        const response = await fetch('https://api.github.com/repos/giangvinhloc610/writeups/contents/posts');
-        const data = await response.json();
+    var f; // Global variable f
 
-        // Construct the big box
-        let htmlString = '<div class="outer">';
-        
-        // Render each post
-        for (let file of data) {
+    (async () => {
+    // Fetch file list from Github API
+    const response = await fetch('https://api.github.com/repos/giangvinhloc610/writeups/contents/posts');
+    const data = await response.json();
 
-            // Create a small box
-            htmlString += "<div class=\"box\">";
+    // Construct the big box
+    let htmlString = '<div class="outer">';
 
-            // Fetch description.json from post's folder
-            (async () => {
-                // Fetch description
-                const p_response = await fetch('posts/${file.name}/description.json');
-                const p_data = await p_response.json();
-                
-                for (let e of p_data) {
-                    // Render to screen
-                    htmlString += "<img src=\"posts/${file.name}/${e.img}\" alt=\"${e.alt}\"><a href=\"posts/${file.name}\">${e.title}</a><br><p>${e.content}</p>"
-                }
-            })()
+    // Render each post
+    for (let file of data) {
 
-            // End small box
-            htmlString += "</div>"
-        }
+        // Create a small box
+        htmlString += "<div class=\"box\">";
 
-        // End big box
-        htmlString += '</div>';
+        f = file;
 
-        // Put HTML to screen
-        document.getElementById('list').innerHTML = htmlString;
-      })()
+        // Fetch description.json from post's folder
+        (async () => {
+            // Fetch description
+            const p_response = await fetch('posts/' + f.name + '/description.json');
+            const p_data = await p_response.json();
+            
+            for (let e of p_data) {
+                // Render to screen
+                htmlString += "<img src=\"posts/${f.name}/${e.img}\" alt=\"${e.alt}\"><a href=\"posts/${f.name}\">${e.title}</a><br><p>${e.content}</p>"
+            }
+        })()
+
+        // End small box
+        htmlString += "</div>"
+    }
+
+    // End big box
+    htmlString += '</div>';
+
+    // Put HTML to screen
+    document.getElementById('list').innerHTML = htmlString;
+    })()
     </script>
 
     <!-- copyright notice -->
