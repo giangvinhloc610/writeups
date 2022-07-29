@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="giangvinhloc610's stupid writeups :)">
+	<meta name="keywords" content="giangvinhloc610, raspiduino, Giang Vinh Loc">
+	<meta name="author" content="Giang Vinh Loc">
+
+	<!-- favicon -->
+	<link rel="icon" type="image/x-icon" href="imgs/kp.png">
+
+	<!-- title -->
+	<title>giangvinhloc610's stupid writeups</title>
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="main.css">
+</head>
+<body>
+	<a href="https://giangvinhloc610.github.io"><img style="float: right;" src="imgs/kp.png" width="138" height="171" alt="kernel panik icon"></a>
+	<h1>Comming soon!</h1>
+
+	<!-- copyright notice -->
+	<footer id="copyright_text" style="float: right;"></footer>
+	<noscript>
+		<!-- If you don't have Javascript :) Are you using Nescape or Tor? -->
+		<footer id="copyright_text" style="float: right;">Copyright 2022-now Giang Vinh Loc</footer>
+	</noscript>
+	<script type="text/javascript">
+		var year = new Date().getFullYear(); // Get current year in number
+		
+		if (year < 2022) {
+			// What the heck?
+			document.getElementById("copyright_text").innerText = "Copyright 2022 Giang Vinh Loc. Are you time travelling?"			
+		}
+
+		else if (year == 2022) {
+			document.getElementById("copyright_text").innerText = "Copyright 2022 Giang Vinh Loc"
+		}
+
+		else if (year > 2022) {
+			document.getElementById("copyright_text").innerText = "Copyright 2022-" + year.toString() + " Giang Vinh Loc"
+		}
+
+		else {
+			document.getElementById("copyright_text").innerText = "Copyright 2022 Giang Vinh Loc. Is your Javascript VM crazy?"
+		}
+	</script>
+</body>
+</html>
