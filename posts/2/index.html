@@ -29,7 +29,7 @@
     <h1>How I debug bootaa64.efi with gdb and IDA</h1>
     <hr>
 
-    <img src="result.png" style="padding: 0; display: block; margin: 0 auto; max-height: 100%; max-width: 100%;" alt="Result">
+    <img src="result.png" alt="Result">
 
     <h2>What are these things?</h2>
     <p><i>Feel free to skip this section if you have already know. Thank you :)</i></p>
@@ -60,10 +60,8 @@
     <p>If you download the precompiled firmware from the above site, or you compile it by your own, you might need to resize the firmware to exact 64MB to fit QEMU's flash size, or it will complain. To make a file exactly 64MB, you can try:</p>
 
     <pre>
-    <code>
-dd if=/dev/zero bs=1M count=64 of=output.img
-dd if=input.img bs=1M of=output.img conv=notrunc
-    </code>
+    <code>dd if=/dev/zero bs=1M count=64 of=output.img
+dd if=input.img bs=1M of=output.img conv=notrunc</code>
     </pre>
 
     <p>with <code>input.img</code> is the input file and <code>output.img</code> is the output file with the size of 64MB.</p>
@@ -78,6 +76,48 @@ dd if=input.img bs=1M of=output.img conv=notrunc
     <p>But KVM is a different story. Since it uses <i>hardware virtualization</i>, so to use breakpoint, we need to set <i>hardware</i> breakpoint. Support for hardware breakpoint on KVM on ARM64 is initialized <a href="https://lists.cs.columbia.edu/pipermail/kvmarm/2014-November/012363.html">here</a> (maybe?) If your kernel doesn't support guest debugging on KVM, breakpoints might not work and QEMU will complain about <code>guest debug not supported on this kernel</code> (like my kernel :D). In that case, single stepping and breakpoints might not work until you patch the kernel. The alternative (but quick and dirty way) is to catch where the code stuck using debugger, then patch the binary, then copy it again to the drive, then run it again. That's not efficient but at least it works :)</p>
 
     <h2>Let's debugging</h2>
+    <h4>1. Load the file <code>bootaa64.efi</code> to IDA64</h4>
+    <p>Remember to allow IDA to download pdb file from the debug server. After that, you will get this:</p>
+    <img src="step1.png" alt="step 1">
+
+    <p>This file will contain some <code>MRS</code> and <code>MSR</code> instructions. IDA will not decode it for you to a human-readable form:</p>
+    <img src="systemregister_original.png" alt="awful register encoding">
+
+    <p>You can use the script <code>highlight_arm_system_insn.py</code> from <a href="https://github.com/gdelugre/ida-arm-system-highlight">this</a> repo. After that, it will be much better:</p>
+    <img src="systemregister_after.png" alt="ah, much better version">
+
+    <p>Now it's good to go!</p>
+
+    <h4>2. Setup QEMU with gdb port open</h4>
+    <p>You need to install QEMU in your system. How you do this is your own business, there are plenty of instructions from the Internet. If you just want to use TCG (pure emulation), then you can run QEMU <b>anywhere</b> you want, not just arm64 hardware with KVM support.</p>
+
+    <p>Here is the command line I used for QEMU:</p>
+    <p>The TCG (pure emulation) version:</p>
+
+    <pre>
+    <code># TCG version (pure emulation)
+qemu-system-aarch64 -M virt,virtualization=on -cpu cortex-a53 -smp 1 -m 1024 -pflash flash0.img -pflash flash1.img -device qemu-xhci -device usb-mouse -device usb-tablet -device usb-kbd -device ramfb -drive if=none,format=vpc,id=iso,media=disk,file=/storage/7AB4-F25D/22000.1_PROFESSIONAL_ARM64_EN-US.vhd -device usb-storage,drive=iso -s -S -vnc :1 -serial stdio
+
+# KVM version (hardware virtualization)
+qemu-system-aarch64 -M virt -cpu cortex-a53 --enable-kvm -smp 2 -m 1024 -pflash flash0.img -pflash flash1.img -device qemu-xhci -device usb-mouse -device usb-tablet -device usb-kbd -device ramfb -drive if=none,format=vpc,id=iso,media=disk,file=/storage/7AB4-F25D/22000.1_PROFESSIONAL_ARM64_EN-US.vhd -device usb-storage,drive=iso -s -S -vnc :1 -serial stdio</code>
+    </pre>
+
+    <p>Some note about the command line:</p>
+    <p>- <code>flash0.img</code> and <code>flash1.img</code> are <code>QEMU_EFI.fd</code> and <code>QEMU_VARS.fd</code> but resized to 64MB. They are from my Google Drive folder above.</p>
+    <p>- For the easy of modifcation, I copied the Windows ARM64 ISO to a VHD using <a href="https://rufus.ie/">Rufus</a>, then put it on a SD card and plug it into my phone. You can boot from other disk image, for example ISO, or even raw disk if you want to. Just remember to change the field <code>format</code>, <code>media</code> (<code>disk</code> for emulating hard disk and <code>cdrom</code> for emulating CD-ROM deivce) and <code>file</code> path.</p>
+
+    <p>QEMU will pause on run to wait for start signal from IDA (or GDB client). QEMU will output the serial log (which will contain the output of EDK2 log) to stdio (aka the terminal you are running the command from), and open port <code>5901</code> for guest VNC framebuffer (feel free to change if you have that port already used), and port <code>1234</code> for GDB (also feel free to change, by remove <code>-s</code> option and add <code>-gdb yourport</code>, replace <code>yourport</code> with the port you would like to use)</p>
+
+    <h4>3. Connect IDA to the GDB server</h4>
+    <p>Go to IDA, click the <kbd>Debugger</kbd> menu and click <kbd>Select Debugger</kbd>. Alternatively you can press <kbd>F9</kbd></p>
+    <img src="dbg_menu.png" alt="Debugger option in the menu">
+    <p>A menu will appear</p>
+    <img src="select_dbg.png" alt="Select debugger menu">
+    <p>Select <kbd>Remote GDB debugger</kbd>. Then go to <kbd>Debugger</kbd> -> <kbd>Process options...</kbd></p>
+    <img src="pcs_opts.png" alt="Process options menu">
+    <p>Here, set the port to <code>1234</code> and the IP to the IP of the machine that is used to run QEMU</p>
+    <img src="network_options.png" alt="Network options">
+
     <p>To be continued...</p>
 
     <!-- copyright notice -->

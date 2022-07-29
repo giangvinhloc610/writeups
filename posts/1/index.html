@@ -33,8 +33,7 @@
     <p>The whole site <a href="https://github.com/giangvinhloc610/writeups">is hosted on Github</a>. Posts are stored under the directory <a href="https://github.com/giangvinhloc610/writeups/tree/main/posts"><code>post</code></a>. In that directory, there are some more subdirectories, and each directory contain a post and its contents. It must contain at least an <code>index.html</code> and a <code>description.json</code>. The file <code>description.json</code> contains metadata of the post, for example, this post's <code>description.json</code>:</p>
 
     <pre>
-    <code>
-[
+    <code>[
     {
         "title": "How this page works :)",
         "img": "thumbnail.png",
@@ -42,8 +41,7 @@
         "content": "Some description about the page itself",
         "date": "29/7/2022"
     }
-]
-    </code>
+]</code>
     </pre>
 
     <p>Field descriptions:</p>
@@ -77,8 +75,7 @@
     <p>The Javascript code in <code>index.html</code> get a list of the directories (and files) in the folder <code>posts</code> <a href="https://stackoverflow.com/questions/39048654/how-to-enable-directory-indexing-on-github-pages">using Github API</a>, ignoring the file <code>index.html</code> in <code>post</code>, then render each directory's <code>description.json</code> to a box and draw it to screen:</p>
 
     <pre>
-    <code>
-var htmlString = ''; // Construct the big box
+    <code>var htmlString = ''; // Construct the big box
 
 (async () =&gt {
     // Fetch file list from Github API
@@ -105,8 +102,7 @@ var htmlString = ''; // Construct the big box
             })(data[i])
         }
     }
-})();
-    </code>
+})();</code>
     </pre>
 
     <p>That's how it works. Really, it's simple. I made this because I can't run (and don't want to) run any big CMS on Github pages, so I made my own :)</p>
