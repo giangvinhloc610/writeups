@@ -9,7 +9,7 @@
     <meta name="author" content="Giang Vinh Loc">
 
     <!-- favicon -->
-    <link rel="icon" type="image/x-icon" href="imgs/kp.png">
+    <link rel="icon" type="image/x-icon" href="https://giangvinhloc610.github.io/imgs/kp.png">
 
     <!-- title -->
     <title>giangvinhloc610's stupid writeups</title>
@@ -29,47 +29,43 @@
 
     <script>
     var f; // Global variable f
+    var htmlString = '<div class="outer">'; // Construct the big box
 
     (async () => {
-    // Fetch file list from Github API
-    const response = await fetch('https://api.github.com/repos/giangvinhloc610/writeups/contents/posts');
-    const data = await response.json();
+        // Fetch file list from Github API
+        const response = await fetch('https://api.github.com/repos/giangvinhloc610/writeups/contents/posts');
+        const data = await response.json();
 
-    // Construct the big box
-    let htmlString = '<div class="outer">';
+        // Render each post
+        for (let file of data) {
+            // Ignore index.html
+            if (file.name != "index.html") {
 
-    // Render each post
-    for (let file of data) {
-        // Ignore index.html
-        if (file.name != "index.html") {
-            // Create a small box
-            htmlString += "<div class=\"box\">";
+                f = file;
 
-            f = file;
+                // Fetch description.json from post's folder
+                (async () => {
+                    // Create a small box
+                    htmlString += "<div class=\"box\">";
 
-            // Fetch description.json from post's folder
-            (async () => {
-                // Fetch description
-                const p_response = await fetch('posts/' + f.name + '/description.json');
-                const p_data = await p_response.json();
-                
-                for (let e of p_data) {
-                    // Render to screen
-                    htmlString += "<img src=\"posts/${f.name}/${e.img}\" alt=\"${e.alt}\"><a href=\"posts/${f.name}\">${e.title}</a><br><p>${e.content}</p>"
-                }
-            })()
+                    // Fetch description
+                    const p_response = await fetch('https://giangvinhloc610.github.io/writeups/posts/' + f.name + '/description.json');
+                    const p_data = await p_response.json();
+                    
+                    for (let e of p_data) {
+                        // Render to screen
+                        htmlString += '<img src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '"><a href="posts/' + f.name + '">' + e.title + '</a><br><p>' + e.content + '</p>';
+                    }
 
-            // End small box
-            htmlString += "</div>"
+                    // End small box
+                    htmlString += "</div>";
+
+                    // Put HTML to screen
+                    document.getElementById("list").innerHTML = (htmlString + '</div>');
+                })()
+            }
         }
-    }
-
-    // End big box
-    htmlString += '</div>';
-
-    // Put HTML to screen
-    document.getElementById('list').innerHTML = htmlString;
-    })()
+    })();
     </script>
 
     <!-- copyright notice -->
