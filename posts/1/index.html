@@ -79,39 +79,32 @@
     <pre>
     <code>
 var f; // Global variable f
-var htmlString = '&ltdiv class="outer"&gt'; // Construct the big box
+var htmlString = ''; // Construct the big box
 
-(async () => {
+(async () =&gt {
     // Fetch file list from Github API
     const response = await fetch('https://api.github.com/repos/giangvinhloc610/writeups/contents/posts');
     const data = await response.json();
 
     // Render each post
-    for (let file of data) {
+    for (var i = 0; i &lt data.length; i++) {
+        f = data[i];
+
         // Ignore index.html
-        if (file.name != "index.html") {
-
-            f = file;
-
+        if (f.name != "index.html") {
             // Fetch description.json from post's folder
-            (async () => {
-                // Create a small box
-                htmlString += "&ltdiv class=\"box\"&gt";
-
+            (async () =&gt {
                 // Fetch description
                 const p_response = await fetch('https://giangvinhloc610.github.io/writeups/posts/' + f.name + '/description.json');
                 const p_data = await p_response.json();
-                
-                for (let e of p_data) {
-                    // Render to screen
-                    htmlString += '&ltimg src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '"&gt&ltbr&gt&lta href="posts/' + f.name + '"&gt' + e.title + '&lt/a&gt&ltbr&gt&ltp&gt' + e.content + '&lt/p&gt&ltbr&gt&ltp style="float: right;"&gt' + e.date + '&lt/p&gt';
-                }
+                var e = p_data[0];
 
-                // End small box
-                htmlString += "&lt/div&gt";
+                // Render to screen
+                htmlString += '&ltdiv class="box"&gt&ltimg src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '"&gt&ltbr&gt&lta href="posts/' + f.name + '"&gt' + e.title + '&lt/a&gt&ltbr&gt&ltp&gt' + e.content + '&lt/p&gt&ltbr&gt&ltp style="float: right;"&gt' + e.date + '&lt/p&gt&lt/div&gt';
 
                 // Put HTML to screen
-                document.getElementById("list").innerHTML = (htmlString + '&lt/div&gt');
+                document.getElementById("list").innerHTML += htmlString;
+                htmlString = ''; // Clear the buffer
             })()
         }
     }

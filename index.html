@@ -26,7 +26,7 @@
     <!-- Break line to separate from icon, make it better for phone users -->
     <hr>
 
-    <div id="list"></div>
+    <div class="outer" id="list"></div>
     
     <!-- Implement a content listing using Github Content API -->
     <!-- Source: https://stackoverflow.com/a/53218452/15365513 -->
@@ -37,7 +37,7 @@
 
     <script>
     var f; // Global variable f
-    var htmlString = '<div class="outer">'; // Construct the big box
+    var htmlString = ''; // Construct the big box
 
     (async () => {
         // Fetch file list from Github API
@@ -45,31 +45,24 @@
         const data = await response.json();
 
         // Render each post
-        for (let file of data) {
+        for (var i = 0; i < data.length; i++) {
+            f = data[i];
+
             // Ignore index.html
-            if (file.name != "index.html") {
-
-                f = file;
-
+            if (f.name != "index.html") {
                 // Fetch description.json from post's folder
                 (async () => {
-                    // Create a small box
-                    htmlString += "<div class=\"box\">";
-
                     // Fetch description
                     const p_response = await fetch('https://giangvinhloc610.github.io/writeups/posts/' + f.name + '/description.json');
                     const p_data = await p_response.json();
-                    
-                    for (let e of p_data) {
-                        // Render to screen
-                        htmlString += '<img src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '" width="100" height="100"><br><a href="posts/' + f.name + '">' + e.title + '</a><br><p>' + e.content + '</p><br><p style="float: right;">' + e.date + '</p>';
-                    }
+                    var e = p_data[0];
 
-                    // End small box
-                    htmlString += "</div>";
+                    // Render to screen
+                    htmlString += '<div class="box"><img src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '"><br><a href="posts/' + f.name + '">' + e.title + '</a><br><p>' + e.content + '</p><br><p style="float: right;">' + e.date + '</p></div>';
 
                     // Put HTML to screen
-                    document.getElementById("list").innerHTML = (htmlString + '</div>');
+                    document.getElementById("list").innerHTML += htmlString;
+                    htmlString = ''; // Clear the buffer
                 })()
             }
         }

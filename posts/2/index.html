@@ -76,7 +76,7 @@ dd if=input.img bs=1M of=output.img conv=notrunc
     <p>But KVM is a different story. Since it uses <i>hardware virtualization</i>, so to use breakpoint, we need to set <i>hardware</i> breakpoint. Support for hardware breakpoint on KVM on ARM64 is initialized <a href="https://lists.cs.columbia.edu/pipermail/kvmarm/2014-November/012363.html">here</a> (maybe?) If your kernel doesn't support guest debugging on KVM, breakpoints might not work and QEMU will complain about <code>guest debug not supported on this kernel</code> (like my kernel :D). In that case, single stepping and breakpoints might not work until you patch the kernel. The alternative (but quick and dirty way) is to catch where the code stuck using debugger, then patch the binary, then copy it again to the drive, then run it again. That's not efficient but at least it works :)</p>
 
     <h2>Let's debugging</h2>
-    <p>To be continued tomorrow...</p>
+    
 
     <!-- copyright notice -->
     <footer id="copyright_text" style="float: right;"></footer>
