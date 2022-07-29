@@ -97,7 +97,7 @@ var htmlString = ''; // Construct the big box
                 var e = p_data[0];
 
                 // Render to screen
-                htmlString += '&ltdiv class="box"&gt&ltimg src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '"&gt&ltbr&gt&lta href="' +  + '"&gt' + e.title + '&lt/a&gt&ltbr&gt&ltp&gt' + e.content + '&lt/p&gt&ltbr&gt&ltp style="float: right;"&gt' + e.date + '&lt/p&gt&lt/div&gt';
+                htmlString += '&ltdiv class="box"&gt&ltimg src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '"&gt&ltbr&gt&lta href="posts/' + f.name + '/"&gt' + e.title + '&lt/a&gt&ltbr&gt&ltp&gt' + e.content + '&lt/p&gt&ltbr&gt&ltp style="float: right;"&gt' + e.date + '&lt/p&gt&lt/div&gt';
 
                 // Put HTML to screen
                 document.getElementById("list").innerHTML += htmlString;
