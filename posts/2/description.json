@@ -1,7 +1,7 @@
 [
     {
         "title": "Debug bootaa64.efi with IDA",
-        "img": "result.png",
+        "img": "thumbnail.png",
         "alt": "bootaa64.efi on IDA",
         "content": "How I debug bootaa64.efi with gdb and IDA",
         "date": "29/7/2022"

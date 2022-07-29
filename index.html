@@ -36,7 +36,6 @@
     </noscript>
 
     <script>
-    var f; // Global variable f
     var htmlString = ''; // Construct the big box
 
     (async () => {
@@ -46,24 +45,22 @@
 
         // Render each post
         for (var i = 0; i < data.length; i++) {
-            f = data[i];
-
             // Ignore index.html
-            if (f.name != "index.html") {
+            if (data[i].name != "index.html") {
                 // Fetch description.json from post's folder
-                (async () => {
+                (async (f) => {
                     // Fetch description
                     const p_response = await fetch('https://giangvinhloc610.github.io/writeups/posts/' + f.name + '/description.json');
                     const p_data = await p_response.json();
                     var e = p_data[0];
 
                     // Render to screen
-                    htmlString += '<div class="box"><img src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '"><br><a href="posts/' + f.name + '">' + e.title + '</a><br><p>' + e.content + '</p><br><p style="float: right;">' + e.date + '</p></div>';
+                    htmlString += '<div class="box"><img src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '"><br><a href="' +  + '">' + e.title + '</a><br><p>' + e.content + '</p><br><p style="float: right;">' + e.date + '</p></div>';
 
                     // Put HTML to screen
                     document.getElementById("list").innerHTML += htmlString;
                     htmlString = ''; // Clear the buffer
-                })()
+                })(data[i])
             }
         }
     })();
