@@ -40,26 +40,28 @@
 
     // Render each post
     for (let file of data) {
+        // Ignore index.html
+        if (file.name != "index.html") {
+            // Create a small box
+            htmlString += "<div class=\"box\">";
 
-        // Create a small box
-        htmlString += "<div class=\"box\">";
+            f = file;
 
-        f = file;
+            // Fetch description.json from post's folder
+            (async () => {
+                // Fetch description
+                const p_response = await fetch('posts/' + f.name + '/description.json');
+                const p_data = await p_response.json();
+                
+                for (let e of p_data) {
+                    // Render to screen
+                    htmlString += "<img src=\"posts/${f.name}/${e.img}\" alt=\"${e.alt}\"><a href=\"posts/${f.name}\">${e.title}</a><br><p>${e.content}</p>"
+                }
+            })()
 
-        // Fetch description.json from post's folder
-        (async () => {
-            // Fetch description
-            const p_response = await fetch('posts/' + f.name + '/description.json');
-            const p_data = await p_response.json();
-            
-            for (let e of p_data) {
-                // Render to screen
-                htmlString += "<img src=\"posts/${f.name}/${e.img}\" alt=\"${e.alt}\"><a href=\"posts/${f.name}\">${e.title}</a><br><p>${e.content}</p>"
-            }
-        })()
-
-        // End small box
-        htmlString += "</div>"
+            // End small box
+            htmlString += "</div>"
+        }
     }
 
     // End big box
