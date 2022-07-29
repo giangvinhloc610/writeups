@@ -1,11 +1,155 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Test post</title>
+    <!-- meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="giangvinhloc610's stupid writeups :)">
+    <meta name="keywords" content="giangvinhloc610, raspiduino, Giang Vinh Loc">
+    <meta name="author" content="Giang Vinh Loc">
+
+    <!-- favicon -->
+    <link rel="icon" type="image/x-icon" href="https://giangvinhloc610.github.io/imgs/kp.png">
+
+    <!-- title -->
+    <title>giangvinhloc610's stupid writeups</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../main.css">
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
 </head>
 <body>
-	<h1>Test post</h1>
+    <a href="https://giangvinhloc610.github.io"><img style="float: right;" src="../imgs/kp.png" width="138" height="171" alt="kernel panik icon"></a>
+
+    <!-- Main content -->
+    <h1>How this page works :)</h1>
+    <p>I mean the <a href="https://giangvinhloc610.github.io/writeups">list</a> page :)</p>
+
+    <hr>
+    <p>The whole site <a href="https://github.com/giangvinhloc610/writeups">is hosted on Github</a>. Posts are stored under the directory <a href="https://github.com/giangvinhloc610/writeups/tree/main/posts"><code>post</code></a>. In that directory, there are some more subdirectories, and each directory contain a post and its contents. It must contain at least an <code>index.html</code> and a <code>description.json</code>. The file <code>description.json</code> contains metadata of the post, for example, this post's <code>description.json</code>:</p>
+
+    <pre>
+    <code>
+    [
+        {
+            "title": "How this page works :)",
+            "img": "thumbnail.png",
+            "alt": "image",
+            "content": "Some description about the page itself",
+            "date": "29/7/2022"
+        }
+    ]
+    </code>
+    </pre>
+
+    <p>Field descriptions:</p>
+    <table style="border: 1px solid black;" rules="all">
+        <tr>
+            <th>Field</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><code>title</code></td>
+            <td>Contain the title of the post to be displayed on the list</td>
+        </tr>
+        <tr>
+            <td><code>img</code></td>
+            <td>Contain the image path to be displayed as thumbnail</td>
+        </tr>
+        <tr>
+            <td><code>alt</code></td>
+            <td>Contain the text to be displayed when the image is not found (aka <code>alt</code> text)</td>
+        </tr>
+        <tr>
+            <td><code>content</code></td>
+            <td>Summary text for the post. You might insert HTML to this as well</td>
+        </tr>
+        <tr>
+            <td><code>date</code></td>
+            <td>Date of the post, but can be anything you want, including HTML code. This text is displayed on the right bottom of the post box</td>
+        </tr>
+    </table>
+
+    <p>The Javascript code in <code>index.html</code> get a list of the directories (and files) in the folder <code>posts</code> <a href="https://stackoverflow.com/questions/39048654/how-to-enable-directory-indexing-on-github-pages">using Github API</a>, ignoring the file <code>index.html</code> in <code>post</code>, then render each directory's <code>description.json</code> to a box and draw it to screen:</p>
+
+    <pre>
+    <code>
+    var f; // Global variable f
+    var htmlString = '&ltdiv class="outer"&gt'; // Construct the big box
+
+    (async () => {
+        // Fetch file list from Github API
+        const response = await fetch('https://api.github.com/repos/giangvinhloc610/writeups/contents/posts');
+        const data = await response.json();
+
+        // Render each post
+        for (let file of data) {
+            // Ignore index.html
+            if (file.name != "index.html") {
+
+                f = file;
+
+                // Fetch description.json from post's folder
+                (async () => {
+                    // Create a small box
+                    htmlString += "&ltdiv class=\"box\"&gt";
+
+                    // Fetch description
+                    const p_response = await fetch('https://giangvinhloc610.github.io/writeups/posts/' + f.name + '/description.json');
+                    const p_data = await p_response.json();
+                    
+                    for (let e of p_data) {
+                        // Render to screen
+                        htmlString += '&ltimg src="posts/' + f.name + '/' + e.img + '" alt="' + e.alt + '"&gt&ltbr&gt&lta href="posts/' + f.name + '"&gt' + e.title + '&lt/a&gt&ltbr&gt&ltp&gt' + e.content + '&lt/p&gt&ltbr&gt&ltp style="float: right;"&gt' + e.date + '&lt/p&gt';
+                    }
+
+                    // End small box
+                    htmlString += "&lt/div&gt";
+
+                    // Put HTML to screen
+                    document.getElementById("list").innerHTML = (htmlString + '&lt/div&gt');
+                })()
+            }
+        }
+    })();
+    </code>
+    </pre>
+
+    <p>That's how it works. Really, it's simple. I made this because I can't run (and don't want to) run any big CMS on Github pages, so I made my own :)</p>
+    <p>If you like it, you can get your own website running this. You just need to modify some URL in the code, and it should works.</p>
+    <p>Thanks for reading this post. Hope you enjoyed it.</p>
+
+    <p>You can post your comments / ideas / questions <a href="https://github.com/giangvinhloc610/writeups/discussions/1">here</a> in the Discussion page.</p>
+
+    <!-- copyright notice -->
+    <footer id="copyright_text" style="float: right;"></footer>
+    <noscript>
+        <!-- If you don't have Javascript :) Are you using Nescape or Tor? -->
+        <footer id="copyright_text" style="float: right;">Copyright 2022-now Giang Vinh Loc</footer>
+    </noscript>
+    <script type="text/javascript">
+        var year = new Date().getFullYear(); // Get current year in number
+        
+        if (year < 2022) {
+            // What the heck?
+            document.getElementById("copyright_text").innerText = "Copyright 2022 Giang Vinh Loc. Are you time travelling?"         
+        }
+
+        else if (year == 2022) {
+            document.getElementById("copyright_text").innerText = "Copyright 2022 Giang Vinh Loc"
+        }
+
+        else if (year > 2022) {
+            document.getElementById("copyright_text").innerText = "Copyright 2022-" + year.toString() + " Giang Vinh Loc"
+        }
+
+        else {
+            document.getElementById("copyright_text").innerText = "Copyright 2022 Giang Vinh Loc. Is your Javascript VM crazy?"
+        }
+    </script>
 </body>
 </html>
