@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="giangvinhloc610's stupid writeups :)">
+    <meta name="keywords" content="giangvinhloc610, raspiduino, Giang Vinh Loc">
+    <meta name="author" content="Giang Vinh Loc">
+
+    <!-- favicon -->
+    <link rel="icon" type="image/x-icon" href="https://giangvinhloc610.github.io/imgs/kp.png">
+
+    <!-- title -->
+    <title>How I debug bootaa64.efi (and any other Windows efi) with gdb and IDA</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../main.css">
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <a href="https://giangvinhloc610.github.io"><img style="float: right;" src="https://giangvinhloc610.github.io/imgs/kp.png" width="138" height="171" alt="kernel panik icon"></a>
+
+    <!-- Main content -->
+    <h1>How I debug bootaa64.efi with gdb and IDA</h1>
+    <hr>
+
+    <h2>What are these things?</h2>
+    <p><i>Feel free to skip this section if you have already know. Thank you :)</i></p>
+
+    <p>Windows, like all other OSes, need to be loaded by a bootloader. On x86 system, if your computer use BIOS, it will look for the MBR on your disk, load it and then run it, then the MBR performs it tasks to load the OS. If you have UEFI, it will look for EFI file in the folder <code>EFI\BOOT\</code> in your EFI partition. On Windows x86(_64), this file is called <code>bootx64.efi</code>.</p>
+
+    <p>On ARM64 (aka aarch64) platform, this file is called <code>bootaa64.efi</code>. It does exactly the same work: load and run Windows, but on ARM64 platform.</p>
+
+    <p>TL;DR: <code>bootaa64.efi</code> is Windows EFI Boot Loader for ARM64 platform.</p>
+
+    <h2>Background</h2>
+    <p>I'm trying to run Windows ARM64 <a href="https://github.com/raspiduino/a6lte-kvm">on my phone using KVM</a>. The phone has Linux kernel version <code>3.18.91</code>, and the KVM module on that kernel lacks (most of) the things Windows ARM64 requires to works. It just hangs when I run it on KVM (hang with blackscreen and absolutely <b>no</b> error message. That's why I have to find where it stucks by debugging.</p>
+
+    <h2>Why not GDB only? Or WinDBG?</h2>
+    <p>Each executable file on Windows is links with the corresponding <code>.pdb</code> file (<a href="https://en.wikipedia.org/wiki/Program_database"><i>Program Debug Database</i></a>) on the Windows Debug Symbol Server. It provides debug symbols (eg function names, variable names, class names, structures,...) to make it easier to debug and read the program's disassemblied code.</p>
+
+    <p>GDB cannot load <code>.pdb</code> files, which makes it hard to read and debug assembly instructions with naked eyes (really awful if you can imagine that)</p>
+
+    <p>WinDBG is used to debug the NT kernel and things after the kernel has been started up, and we need to enable debug in the bootloader. But we are debugging the bootloader, it doesn't work, how can we boot to it to enable it ? :D WinDBG can also be used for debugging EFI, but it needs to be used with <a href="https://www.intel.com/content/www/us/en/download/674520/intel-uefi-development-kit-intel-udk-debugger-tool-windows.html">Intel UDK</a> (UEFI Development Kit). And guess what, that thing only works on x86(_64) platform :)</p>
+
+    <p>Using IDA with GDB backend might be the best option I can think of. IDA loads <code>.pdb</code> files, make graphs,... and connect to GDB to debug. In fact, you can also use things like Ghidra or radare, but I haven't tried it yet.</p>
+
+    <h2>Environment</h2>
+    <p>QEMU with IDA is just enough for the tools. I run QEMU on my phone, so I can try both TCG (<i>Tiny Code Generator</i>, pure <i>software</i> emulation) and KVM (hardware virtualization)</p>
+
+    <p>You should have the EDK2 <b>debug</b> image, which provides you verbose logs. You can <a href="https://github.com/raspiduino/a6lte-kvm/blob/main/edk2.md">compile it by your own</a>, or you can get it from precompiled site <a href="https://retrage.github.io/edk2-nightly/">here</a>. <b>REMEMBER TO GET THE</b> <code>AARCH64</code> <b>DEBUG VERSION!!!</b></p>
+
+    <p>If you download the precompiled firmware from the above site, or you compile it by your own, you might need to resize the firmware to exact 64MB to fit QEMU's flash size, or it will complain. To make a file exactly 64MB, you can try:</p>
+
+    <pre>
+    <code>
+dd if=/dev/zero bs=1M count=64 of=output.img
+dd if=input.img bs=1M of=output.img conv=notrunc
+    </code>
+    </pre>
+
+    <p>with <code>input.img</code> is the input file and <code>output.img</code> is the output file with the size of 64MB.</p>
+
+    <p>Or, you can download my resized image built on my own <a href="https://drive.google.com/drive/folders/1oHYDVSFkLXMfTpU7iqxq9GT92MsrrWTJ?usp=sharing">here</a> :)</p>
+
+    <p>And of course, you need your <code>bootaa64.efi</code> (or any other EFI files you want to debug). Put it in a <b>FAT32</b> partition to be able to load it from EDK2.</p>
+
+    <h2>Something to note about TCG debugging vs KVM debugging</h2>
+    <p>TCG is fully software emulation. Breakpoints should work on it normally</p>
+    
+    <p>But KVM is a different story. Since it uses <i>hardware virtualization</i>, so to use breakpoint, we need to set <i>hardware</i> breakpoint. Support for hardware breakpoint on KVM on ARM64 is initialized <a href="https://lists.cs.columbia.edu/pipermail/kvmarm/2014-November/012363.html">here</a> (maybe?) If your kernel doesn't support guest debugging on KVM, breakpoints might not work and QEMU will complain about <code>guest debug not supported on this kernel</code> (like my kernel :D). In that case, single stepping and breakpoints might not work until you patch the kernel. The alternative (but quick and dirty way) is to catch where the code stuck using debugger, then patch the binary, then copy it again to the drive, then run it again. That's not efficient but at least it works :)</p>
+
+    <h2>Let's debugging</h2>
+    <p>To be continued tomorrow...</p>
+
+    <!-- copyright notice -->
+    <footer id="copyright_text" style="float: right;"></footer>
+    <noscript>
+        <!-- If you don't have Javascript :) Are you using Nescape or Tor? -->
+        <footer id="copyright_text" style="float: right;">Copyright 2022-now Giang Vinh Loc</footer>
+    </noscript>
+    <script type="text/javascript">
+        var year = new Date().getFullYear(); // Get current year in number
+        
+        if (year < 2022) {
+            // What the heck?
+            document.getElementById("copyright_text").innerText = "Copyright 2022 Giang Vinh Loc. Are you time travelling?"         
+        }
+
+        else if (year == 2022) {
+            document.getElementById("copyright_text").innerText = "Copyright 2022 Giang Vinh Loc"
+        }
+
+        else if (year > 2022) {
+            document.getElementById("copyright_text").innerText = "Copyright 2022-" + year.toString() + " Giang Vinh Loc"
+        }
+
+        else {
+            document.getElementById("copyright_text").innerText = "Copyright 2022 Giang Vinh Loc. Is your Javascript VM crazy?"
+        }
+    </script>
+</body>
+</html>
