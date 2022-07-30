@@ -29,7 +29,7 @@
     <h1>How I debug bootaa64.efi with gdb and IDA</h1>
     <hr>
 
-    <img src="result.png" alt="Result">
+    <img src="result.png" alt="Result" onclick='window.open("result.png", "_blank").focus();'>
 
     <h2>What are these things?</h2>
     <p><i>Feel free to skip this section if you have already know. Thank you :)</i></p>
@@ -78,13 +78,13 @@ dd if=input.img bs=1M of=output.img conv=notrunc</code>
     <h2>Let's debugging</h2>
     <h4>1. Load the file <code>bootaa64.efi</code> to IDA64</h4>
     <p>Remember to allow IDA to download pdb file from the debug server. After that, you will get this:</p>
-    <img src="step1.png" alt="step 1">
+    <img src="step1.png" alt="step 1" onclick='window.open("step1.png", "_blank").focus();'>
 
     <p>This file will contain some <code>MRS</code> and <code>MSR</code> instructions. IDA will not decode it for you to a human-readable form:</p>
-    <img src="systemregister_original.png" alt="awful register encoding">
+    <img src="systemregister_original.png" alt="awful register encoding" onclick='window.open("systemregister_original.png", "_blank").focus();'>
 
     <p>You can use the script <code>highlight_arm_system_insn.py</code> from <a href="https://github.com/gdelugre/ida-arm-system-highlight">this</a> repo. After that, it will be much better:</p>
-    <img src="systemregister_after.png" alt="ah, much better version">
+    <img src="systemregister_after.png" alt="ah, much better version" onclick='window.open("systemregister_after.png", "_blank").focus();'>
 
     <p>Now it's good to go!</p>
 
@@ -110,15 +110,90 @@ qemu-system-aarch64 -M virt -cpu cortex-a53 --enable-kvm -smp 2 -m 1024 -pflash 
 
     <h4>3. Connect IDA to the GDB server</h4>
     <p>Go to IDA, click the <kbd>Debugger</kbd> menu and click <kbd>Select Debugger</kbd>. Alternatively you can press <kbd>F9</kbd></p>
-    <img src="dbg_menu.png" alt="Debugger option in the menu">
+    <img src="dbg_menu.png" alt="Debugger option in the menu" onclick='window.open("dbg_menu.png", "_blank").focus();'>
     <p>A menu will appear</p>
-    <img src="select_dbg.png" alt="Select debugger menu">
+    <img src="select_dbg.png" alt="Select debugger menu" onclick='window.open("select_dbg.png", "_blank").focus();'>
     <p>Select <kbd>Remote GDB debugger</kbd>. Then go to <kbd>Debugger</kbd> -> <kbd>Process options...</kbd></p>
-    <img src="pcs_opts.png" alt="Process options menu">
+    <img src="pcs_opts.png" alt="Process options menu" onclick='window.open("pcs_opts.png", "_blank").focus();'>
     <p>Here, set the port to <code>1234</code> and the IP to the IP of the machine that is used to run QEMU</p>
-    <img src="network_options.png" alt="Network options">
+    <img src="network_options.png" alt="Network options" onclick='window.open("network_options.png", "_blank").focus();'>
 
-    <p>To be continued...</p>
+    <h4>4. Pre-debugging</h4>
+    <p>This may sound unusual, but you need to do it.</p>
+    <p>In the first run, <b>DON'T</b> set any breakpoint. Just start QEMU (with the above command line), then connect the VNC client to port <code>5901</code>, then press <kbd>F9</kbd> in IDA to start the debugger. When you see a question box like this:</p>
+    <img src="dlg1.png" alt="Confirm attach to remote debug" onclick='window.open("dlg1.png", "_blank").focus();'>
+    <p>Click <kbd>Yes</kbd> to attach to QEMU's gdbstub. Then IDA will stop at this screen:</p>
+    <img src="edk2_startup.png" alt="EDK2 startup" onclick='window.open("edk2_startup.png", "_blank").focus();'>
+    <p>(If you wonder what this code is, then it's QEMU's initialize code when it start. Remember we tell QEMU to pause on launch with <code>-S</code>?)</p>
+    <p>Now press F9 again to start QEMU then <b>quickly</b> return to your VNC screen on port <code>5901</code>.</p>
+    <p>When you see this EDK2 screen with the text <code>Start boot option</code>, please <b>quickly and repeatedly</b> press <kbd>ESC</kbd> to tell EDK2 to go to boot menu (or you might have to wait for iPXE to timeout):</p>
+    <img src="edk2_bootmenu.png" alt="EDK2 boot menu" onclick='window.open("edk2_bootmenu.png", "_blank").focus();'>
+    <p>Go to <kbd>Boot Maintenance Manager</kbd> -> <kbd>Boot From File</kbd>, then select the <code>EFI</code> file you want to debug from <kbd>File Explorer</kbd>, then press <kbd>Enter</kbd> to load it.</p>
+    <p><i>Note:</i> In some cases, especially when you debugging <code>bootaa64.efi</code>, you need to press some key to force the <code>EFI</code> to load, or it will return to the <kbd>File Explorer</kbd> screen</p>
+
+    <p>Now quickly return to IDA and press the <kbd>Pause</kbd> button to pause the program. In the console (or whatever the serial is output to), you will see some log like this:</p>
+
+    <pre>
+    <code>[Bds]Booting bootaa64.efi
+FSOpen: Open '\efi\boot\bootaa64.efi' Success
+[Bds] Expand PciRoot(0x0)/Pci(0x2,0x0)/USB(0x7,0x0)/USB(0x0,0x0)/HD(1,GPT,25669F20-B036-4F50-BFDE-9F52D29783C5,0x800,0x9FF7DF)/\efi\boot\bootaa64.efi -> PciRoot(0x0)/Pci(0x2,0x0)/USB(0x7,0x0)/USB(0x0,0x0)/HD(1,GPT,25669F20-B036-4F50-BFDE-9F52D29783C5,0x800,0x9FF7DF)/\efi\boot\bootaa64.efi
+[Security] 3rd party image[0] can be loaded after EndOfDxe: PciRoot(0x0)/Pci(0x2,0x0)/USB(0x7,0x0)/USB(0x0,0x0)/HD(1,GPT,25669F20-B036-4F50-BFDE-9F52D29783C5,0x800,0x9FF7DF)/\efi\boot\bootaa64.efi.
+InstallProtocolInterface: 5B1B31A1-9562-11D2-8E3F-00A0C969723B 7CEB6D40
+ConvertPages: failed to find range 10000000 - 101EDFFF
+add-symbol-file bootmgfw.pdb 0x7BADC400
+Loading driver at 0x0007BADC000 EntryPoint=0x0007BAFEC90 bootmgfw.efi
+InstallProtocolInterface: BC62157E-3E33-4FEC-9920-2D3B36D750DF 7EAD2498
+ProtectUefiImageCommon - 0x7CEB6D40
+  - 0x000000007BADC000 - 0x00000000001EE000
+SetUefiImageMemoryAttributes - 0x000000007BADC000 - 0x0000000000001000 (0x0000000000004008)
+SetUefiImageMemoryAttributes - 0x000000007BADD000 - 0x000000000018E000 (0x0000000000020008)
+SetUefiImageMemoryAttributes - 0x000000007BC6B000 - 0x0000000000001000 (0x0000000000020008)
+SetUefiImageMemoryAttributes - 0x000000007BC6C000 - 0x000000000005E000 (0x0000000000004008)
+ConvertPages: failed to find range 102000 - 102FFF</code>
+    </pre>
+
+    <p>You can notice that our entry point is at the address <code>0x0007BAFEC90</code> in the memory. The entry point can be reached in IDA by pressing <kbd>g</kbd> and then enter the name <code>EfiEntry</code>. You will then notice that our <code>EfiEntry</code> is at a different address than the real <code>EntryPoint</code> address in QEMU:</p>
+    <img src="ep1.png" alt="EntryPoint address before rebase" onclick='window.open("ep1.png", "_blank").focus();'>
+
+    <p>We now need to rebase the EFI to match that real address. In the IDAPython's console, you can calculate the delta between two address:</p>
+
+    <pre>
+    <code>Python>0x7BAFEC90 - 0x10022C90
+0x6badc000</code>
+    </pre>
+
+    <p>Now open the rebase menu by clicking on <kbd>Edit</kbd> -> <kbd>Segments</kbd> -> <kbd>Rebase program...</kbd>:</p>
+    <img src="rb1.png" alt="rebase menu" onclick='window.open("rb1.png", "_blank").focus();'>
+
+    <p>Now select <kbd>Shift delta</kbd>, then enter the delta value, in this case <code>0x6badc000</code>, then press <kbd>OK</kbd>:</p>
+    <img src="rb2.png" alt="rebase" onclick='window.open("rb2.png", "_blank").focus();'>
+
+    <p>Wait for IDA to rebase a little bit until it has done.</p>
+
+    <h4>5. Debugging</h4>
+    <p>Set a breakpoint at the location you want. I will set a breakpoint at <code>EfiEntry</code>. Then repeat the exact same process in the section <code>4. Pre-debugging</code>, from the begining until you press <kbd>Enter</kbd> to load <code>bootaa64.efi</code> from <kbd>File Explorer</kbd>.</p>
+
+    <p>When your EFI is loaded, IDA should popup and pause at the breakpoint:</p>
+    <img src="result.png" alt="Result" onclick='window.open("result.png", "_blank").focus();'>
+
+    <h4>6. Some more notes</h4>
+    <p>Your code might be stuck as an exception handler. Even worse, some exception handler handle <i>nothing</i>, it's just a forever loop. For example the <code>BlKernelSp0SystemErrorHandler</code> and <code>BlKernelExceptionHandler</code>:</p>
+    <img src="handler.png" alt="Exception handler" onclick='window.open("handler.png", "_blank").focus();'>
+
+    <p>So if your code stuck at this kind of exception handler, you will have to find out <i>what</i> cause the exception. To do this, open the System Register watcher by clicking on <kbd>Debugger</kbd> -> <kbd>Debugger windows</kbd> -> <kbd>org.qemu.gdb.arm.sys.regs</kbd></p>
+    <img src="sys_regs1.png" alt="Open system register watcher" onclick='window.open("sys_regs1.png", "_blank").focus();'>
+
+    <p>Then find the register <code>ELR_EL1</code>, which holds the address to return from exception. The value on this register is actually the address of the code that cause the exception:</p>
+    <img src="sys_regs2.png" alt="System register watcher" onclick='window.open("sys_regs2.png", "_blank").focus();'>
+
+    <p>Copy that address, then go to it by return to <kbd>IDA View</kbd> and press <kbd>g</kbd> (remember to add the <code>0x</code> prefix). You should see the code that cause that exception. In my case, the exception was caused by a <code>BRK #0xF004</code> instruction, which is an instruction to trigger debug breakpoint:</p>
+    <img src="brk.png" alt="BRK instruction" onclick='window.open("brk.png", "_blank").focus();'>
+
+    <p>You should further inspect the control flow to see why it goes there.</p>
+
+    <p>As usual, you can post any comment <a href="https://app.grammarly.com/">here</a></p>
+
+    <h2>Thank you for viewing my post!</h2>
 
     <!-- copyright notice -->
     <footer id="copyright_text" style="float: right;"></footer>
