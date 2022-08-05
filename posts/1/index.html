@@ -83,7 +83,7 @@
     const data = await response.json();
 
     // Render each post
-    for (var i = 0; i &lt data.length; i++) {
+    for (var i = (data.length - 1); i >= 0; i--) {
         // Ignore index.html
         if (data[i].name != "index.html") {
             // Fetch description.json from post's folder

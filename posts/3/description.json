@@ -1,0 +1,9 @@
+[
+    {
+        "title": "Pre-indexed idb file of libil2cpp.so of the game \"World War Heroes\"",
+        "img": "thumbnail.png",
+        "alt": "IDB file",
+        "content": "I'm analyze the code in <code>libil2cpp.so</code> in the game <a href=\"https://play.google.com/store/apps/details?id=com.gamedevltd.wwh&hl=en&gl=US\">World War Heroes</a>, and have loaded the file to IDA, apply name & types with il2cppdumper. This takes a long time and I want to share a pre-indexed file, in case you want to look into it, too :)",
+        "date": "5/8/2022"
+    }
+]

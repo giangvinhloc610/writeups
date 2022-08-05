@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="giangvinhloc610's stupid writeups :)">
+    <meta name="keywords" content="giangvinhloc610, raspiduino, Giang Vinh Loc">
+    <meta name="author" content="Giang Vinh Loc">
+
+    <!-- favicon -->
+    <link rel="icon" type="image/x-icon" href="https://giangvinhloc610.github.io/imgs/kp.png">
+
+    <!-- title -->
+    <title>How this page works :)</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../main.css">
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <a href="https://giangvinhloc610.github.io"><img style="float: right;" src="https://giangvinhloc610.github.io/imgs/kp.png" width="138" height="171" alt="kernel panik icon"></a>
+
+    <!-- Main content -->
+    <h1>A pre-indexed IDB file for <code>libil2cpp.so</code> in the game World War Heroes</h1>
+    <p><a href="https://play.google.com/store/apps/details?id=com.gamedevltd.wwh&hl=en&gl=US">Link</a> to the game in Google Play Store</p>
+    <p>This is a FPS game with WW2 theme. It was very fun, until hackers appeared and used God Mode :P</p>
+    <p>There was actually <a href="https://platinmods.com/threads/world-war-heroes-ww2-fps-ver-1-33-2-mod-menu-apk-unlimited-ammo-ohk-god-mode-radar-anti-kick-more-15-features.120570/">a mod</a> from a user named <code>TheArmKing</code> from <a href="https://platinmods.com">platinmods.com</a></p>
+    <p>But my goal is not just hacking the game like that, I want to enable the game to be played <i>offline</i> and (maybe) make a custom local game server.</p>
+    <p>TL;DR: <a href="https://drive.google.com/file/d/17dQTNj_-EC30fVJf0_YJF1brocjAjySn/view">here</a> is the file. Enjoy!</p>
+
+    <p>P/S: Hopefully I will be able to dig further to this game's logic and make a mod version of it myself. If I can do that, I will post them here :)</p>
+
+    <!-- copyleft notice -->
+    <footer id="copyleft_text" style="float: right;"></footer>
+    <noscript>
+        <!-- If you don't have Javascript :) Are you using Nescape or Tor? -->
+        <footer id="copyleft_text" style="float: right;">copyleft 2022-now Giang Vinh Loc</footer>
+    </noscript>
+    <script type="text/javascript">
+        var year = new Date().getFullYear(); // Get current year in number
+        
+        if (year < 2022) {
+            // What the heck?
+            document.getElementById("copyleft_text").innerText = "copyleft 2022 Giang Vinh Loc. Are you time travelling?"         
+        }
+
+        else if (year == 2022) {
+            document.getElementById("copyleft_text").innerText = "copyleft 2022 Giang Vinh Loc"
+        }
+
+        else if (year > 2022) {
+            document.getElementById("copyleft_text").innerText = "copyleft 2022-" + year.toString() + " Giang Vinh Loc"
+        }
+
+        else {
+            document.getElementById("copyleft_text").innerText = "copyleft 2022 Giang Vinh Loc. Is your Javascript VM crazy?"
+        }
+    </script>
+</body>
+</html>
