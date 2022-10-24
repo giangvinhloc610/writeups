@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="giangvinhloc610's stupid writeups :)">
+    <meta name="keywords" content="giangvinhloc610, raspiduino, Giang Vinh Loc">
+    <meta name="author" content="Giang Vinh Loc">
+
+    <!-- favicon -->
+    <link rel="icon" type="image/x-icon" href="https://giangvinhloc610.github.io/imgs/kp.png">
+
+    <!-- title -->
+    <title>The MRE platform (part 1): A bit background of the MRE platform</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../main.css">
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <a href="https://giangvinhloc610.github.io"><img style="float: right;" src="https://giangvinhloc610.github.io/imgs/kp.png" width="138" height="171" alt="kernel panik icon"></a>
+
+    <!-- Main content -->
+    <h1>The MRE platform</h1>
+    <h1>Part 1: A bit background of the MRE platform</h1>
+    <br>
+    <hr>
+
+    <h2>1. What is MRE platform?</h2>
+    <img src="https://avatars.githubusercontent.com/u/107233991" alt="MRE logo" style="float: right;">
+    <p>This is how MRE defined itself:</p>
+    <blockquote cite="https://web.archive.org/web/20151104094204/http://mre.mediatek.com/en/start/what#:~:text=MRE%20(MAUI%20Runtime,quickly%20and%20effectively.">
+        MRE (MAUI Runtime Environment) is a phone application development platform similar to JVM and Brew. On the MRE platform, you can realize solutions for smart featuer phones on feature phones. Meanwhile, MediaTek also provides devlopers and end suppliers with highly efficient development tools (MRE SDK) and compilation environment for applications, allowing developers to develop applications more quickly and effectively.
+    </blockquote>
+    <p>Source <a href="https://web.archive.org/web/20151104094204/http://mre.mediatek.com/en/start/what#:~:text=MRE%20(MAUI%20Runtime,quickly%20and%20effectively.">here</a> (we will talk about this later)</p>
+
+    <h2>2. What is it used for?</h2>
+    <p>If you have phones in the <a href="https://en.wikipedia.org/wiki/Series_30%2B">Nokia S30+ series</a>, like <i>Nokia 220</i>, <i>Nokia 225</i>, ... (see full list <a href="https://en.wikipedia.org/wiki/Series_30%2B#:~:text=References-,List%20of%20devices,-%5Bedit%5D">here</a>), then you have a phone running MRE platform!</a></p>
+    <p>Some other MRE phones include cheap some cheap Chinese phones (I'm not sure of their names), some phone for older people (which has large screen and big text, along with read-aloud features). I have seen old Viettel phone running MRE, too :))</p>
+    <p>If you open up some handheld phone (not Android phone) and see Mediatek chip (especially <code>MT62xx</code> series), then it might run MRE platform</p>
+    <p>Some development board (like the Linkit One) also based on MRE platform.</p>
+
+    <h2>3. Current status of MRE</h2>
+    <p>MRE has been abandoned by Mediatek since 2016. People have claimed <a href="https://news.ycombinator.com/item?id=14288221#:%7E:text=across%20multiple%20devices.-,As%20for%20the%20Series%2030%2B%2C%20the%20MRE%20was%20a%20market%20failure%2C%20never%20reaching%20a%20fraction%20of%20J2ME%2C%20Mediatek%20doesn%27t%20even%20support%20the%20SDK%20anymore.,-bitmapbrother%20on%20May">here</a> that it's a market failure. The website, including the SDK, documentation, forum, disscussion and other things were totally deleted from the Internet since then (Wayback Machine archived some of the pages but not all).</p>
+    
+    <h2>4. MRE "OS", MRE runtime and MRE SDK</h2>
+    <p>MRE can be called an OS, which was based on Nucleus RTOS.</p>
+    <p>MRE runtime is the runtime of MRE, for running <code>.vxp</code> apps on the OS, and provides a set of APIs for the app. It supports application written in C, and C++, or anything that can be compiled to ARM machine code (we will talk about this further in the next part of the series).</p>
+    <p>Like other OSes, MRE has it own SDK, supports C and C++. This SDK has been removed from the offical page, but luckily some man still keep it on Github (talk about this later)</p>
+
+    <h2>5. MRE as a replacement for J2ME</h2>
+    <p>Actually, MRE is developed to replace the J2ME platform, and it was choosen by Microsoft after taking over Nokia to replace old Symbian OS.</p>
+
+    <hr>
+    <p>Bruh, TBH, I can't think of more "background" things about MRE, and I can't talk about the technical things here, since it's a "background" description post. So probably I will end this post here, and release a new post later about the technical details of MRE :) Thank you for reading this post, and see you in the next post!</p>
+
+    <!-- copyleft notice -->
+    <footer id="copyleft_text" style="float: right;"></footer>
+    <noscript>
+        <!-- If you don't have Javascript :) Are you using Nescape or Tor? -->
+        <footer id="copyleft_text" style="float: right;">Copyleft 2022-now Giang Vinh Loc</footer>
+    </noscript>
+    <script type="text/javascript">
+        var year = new Date().getFullYear(); // Get current year in number
+        
+        if (year < 2022) {
+            // What the heck?
+            document.getElementById("copyleft_text").innerText = "Copyleft 2022 Giang Vinh Loc. Are you time travelling?"         
+        }
+
+        else if (year == 2022) {
+            document.getElementById("copyleft_text").innerText = "Copyleft 2022 Giang Vinh Loc"
+        }
+
+        else if (year > 2022) {
+            document.getElementById("copyleft_text").innerText = "Copyleft 2022-" + year.toString() + " Giang Vinh Loc"
+        }
+
+        else {
+            document.getElementById("copyleft_text").innerText = "Copyleft 2022 Giang Vinh Loc. Is your Javascript VM crazy?"
+        }
+    </script>
+</body>
+</html>
